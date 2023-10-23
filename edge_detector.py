@@ -9,11 +9,12 @@ from skimage.filters import sobel, prewitt
 from skimage.feature import canny
 import numpy as np
 
-def display_images(img:np.array, cmap:str = "gray") -> None:
+def display_images(img:np.array, img_edges:np.array, cmap:str = "gray") -> None:
     """Displays the image and the edges
 
     Args:
         img (np.array): The input image
+        img_edges (np.array): The image of the edges
         cmap (str, optional): The colourmap. Defaults to "gray".
     """
     
@@ -48,4 +49,4 @@ def find_edges(img:np.array, method:str = "canny") -> np.array:
 img = imread("test_images/DAPI.png")
 img_edges = find_edges(img, "canny")
 
-display_images(img)
+display_images(img, img_edges)
