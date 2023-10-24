@@ -48,5 +48,5 @@ def find_edges(img:np.array, method:str = "canny") -> np.array:
 # TODO: user needs to select this
 img = imread("test_images/DAPI.png")
 img_edges = find_edges(img, "canny")
-
+imsave("test_images/DAPI_edges.png", img_edges)
 display_images(img, img_edges)
