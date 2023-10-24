@@ -8,6 +8,7 @@ from skimage.io import imread, imsave
 from skimage.filters import sobel, prewitt
 from skimage.feature import canny
 import numpy as np
+import PySimpleGUI as sg
 
 def display_images(img:np.array, img_edges:np.array, cmap:str = "gray") -> None:
     """Displays the image and the edges
@@ -44,9 +45,32 @@ def find_edges(img:np.array, method:str = "canny") -> np.array:
         raise ValueError(f"Method {method} is not supported.")
     
     return img_edges
+
+# Define a layout for our GUI
+layout = [
+    [sg.Text("Edge detection")],
+    [sg.Text("Input image"), sg.FileBrowse(key="input_image")],
+    [sg.Text("Method"), sg.Combo(["canny", "sobel", "prewitt"],
+     key = "method", default_value="canny", readonly=True)],
+    [sg.Text("Colourmap"), sg.Combo(["gray", "viridis", "Greens", "Blues", "Reds"],
+     key = "colourmap", default_value="gray", readonly=True)],
+    [sg.Button("Detect edges"), sg.Button("Exit")]
+]
+
+window = sg.Window("EdgeDetector", layout=layout)
+
+while(True):
+    event, values = window.read()
     
-# TODO: user needs to select this
-img = imread("test_images/DAPI.png")
-img_edges = find_edges(img, "canny")
-imsave("test_images/DAPI_edges.png", img_edges)
-display_images(img, img_edges)
+    if event=="Exit" or event==sg.WIN_CLOSED:
+        window.close()
+        break
+    
+    if event=="Detect edges":
+        if values['input_image'] == "":
+            sg.popup("Please choose an image first!")
+        else:          
+            img = imread(values["input_image"])
+            img_edges = find_edges(img, values["method"])
+            imsave("test_images/DAPI_edges.png", img_edges)
+            display_images(img, img_edges, values["colourmap"])        
