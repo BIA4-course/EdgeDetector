@@ -8,7 +8,20 @@ from skimage.io import imread, imsave
 from skimage.filters import sobel, prewitt
 from skimage.feature import canny
 import numpy as np
+import argparse
+import os
 
+# We will call our software as
+# python edge_detector.py --input inputfile.png [--output outputfile.png] [--method canny] [--cmap gray]
+parser = argparse.ArgumentParser(description="Finds edges in the provided image")
+parser.add_argument("-i", "--input", help="The input image file name", required=True)
+parser.add_argument("-o", "--output", help="The output image file name", required=False)
+parser.add_argument("-m", "--method", help="The edge detecting method, default is canny", 
+                    required=False, default="canny", choices=["canny", "sobel", "prewitt"])
+parser.add_argument("-c", "--cmap", help="The colourmap to display the image, default is gray", 
+                    default="gray")
+
+args = parser.parse_args()
 def display_images(img:np.array, img_edges:np.array, cmap:str = "gray") -> None:
     """Displays the image and the edges
 
@@ -45,8 +58,19 @@ def find_edges(img:np.array, method:str = "canny") -> np.array:
     
     return img_edges
     
-# TODO: user needs to select this
-img = imread("test_images/DAPI.png")
-img_edges = find_edges(img, "canny")
-imsave("test_images/DAPI_edges.png", img_edges)
-display_images(img, img_edges)
+if os.path.exists(args.input):
+    img = imread(args.input)
+else:
+    raise FileExistsError(f"Input file {args.input} does not exist!")
+
+img_edges = find_edges(img, args.method)
+# If the user does not provide an output file name generate it automatically
+if args.output is None:
+    # input.png -> input_edges.png
+    input_name_split = args.input.split(".")
+    output_filename = f"{input_name_split[0]}_edges.{input_name_split[1]}"
+else:
+    output_filename = args.output
+    
+imsave(output_filename, img_edges)
+display_images(img, img_edges, cmap=args.cmap)
